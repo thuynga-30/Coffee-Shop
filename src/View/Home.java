@@ -9,15 +9,22 @@ import javax.swing.border.EmptyBorder;
 
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatGitHubIJTheme;
+import com.k33ptoo.components.KButton;
+import com.k33ptoo.components.KGradientPanel;
+
+import Database.FoodManager;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+
 import javax.swing.JLabel;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+
 import javax.swing.SwingConstants;
 import javax.swing.JButton;
 import java.awt.CardLayout;
@@ -25,6 +32,8 @@ import java.util.*;
 import javax.swing.Timer;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.table.DefaultTableModel;
 
@@ -40,6 +49,8 @@ public class Home extends JFrame {
 	private JPanel Food;
 	private JPanel Drink;
 	private JPanel Coffee;
+    private JScrollPane jScrollPane1;
+
 
 
 
@@ -50,7 +61,24 @@ public class Home extends JFrame {
 	 */
 	
 	public static void main(String[] args) {
+		 try {
+	            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+	                if ("Nimbus".equals(info.getName())) {
+	                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+	                    break;
+	                }
+	            }
+	        } catch (ClassNotFoundException ex) {
+	            java.util.logging.Logger.getLogger(Home.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+	        } catch (InstantiationException ex) {
+	            java.util.logging.Logger.getLogger(Home.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+	        } catch (IllegalAccessException ex) {
+	            java.util.logging.Logger.getLogger(Home.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+	        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+	            java.util.logging.Logger.getLogger(Home.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+	        }
 		FlatMacLightLaf.setup();
+		
 		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -184,6 +212,7 @@ public class Home extends JFrame {
 		JButton btnNewButton_3 = new JButton("Foods");
 		btnNewButton_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				displayFood();
 			}
 		});
 		btnNewButton_3.setBackground(new Color(219, 160, 89));
@@ -320,4 +349,72 @@ public class Home extends JFrame {
 		timeStart();
 		setTime();
 	}
+	private void displayFood() {
+		Color mainColor = new Color(51, 153, 255);
+        FoodManager foodManager = new FoodManager();
+        List<Model.Food> foods = foodManager.findAll(); 
+
+        JPanel displayPanel = new JPanel(new GridLayout(0, 3, 120, 50)); 
+        displayPanel.setBackground(Color.WHITE);
+
+        for (Model.Food food : foods) {
+        KGradientPanel foodPanel = new KGradientPanel(); 
+        foodPanel.setLayout(new BoxLayout(foodPanel, BoxLayout.Y_AXIS)); 
+        foodPanel.setPreferredSize(new Dimension(30, 250)); 
+        foodPanel.setBackground(Color.WHITE);
+        foodPanel.setkStartColor(mainColor);
+        foodPanel.setkEndColor(Color.white);
+        foodPanel.setkBorderRadius(100);
+        foodPanel.setBackground(Color.WHITE);
+        
+        ImageIcon imageIcon = new ImageIcon(food.getImage());
+        JLabel imageLabel = new JLabel(imageIcon);
+        imageLabel.setAlignmentX(Component.CENTER_ALIGNMENT); 
+        foodPanel.add(Box.createVerticalStrut(10));
+        foodPanel.add(imageLabel);
+
+        // Name
+        JLabel nameLabel = new JLabel(food.getName());
+        nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        nameLabel.setFont(new Font("Segoe UI",1,12));
+        foodPanel.add(Box.createVerticalStrut(10));
+        foodPanel.add(nameLabel);
+
+        
+        // Price
+        JLabel priceLabel = new JLabel(food.getPrice());
+        priceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        priceLabel.setFont(new Font("Segoe UI",1,12));
+        priceLabel.setForeground(Color.red);
+        foodPanel.add(Box.createVerticalStrut(10));
+        foodPanel.add(priceLabel);
+        
+        KButton buyButton = new KButton();
+        buyButton.setText("BUY");
+        buyButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                   
+                }
+            });
+        buyButton.setBackground(mainColor);
+        buyButton.setkAllowGradient(false);
+        buyButton.setkBorderRadius(30);
+        buyButton.setkBackGroundColor(mainColor);
+        buyButton.setkSelectedColor(Color.WHITE);
+        buyButton.setkHoverForeGround(Color.BLACK);
+        buyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+      
+       foodPanel.add(buyButton);
+        
+        
+        displayPanel.add(foodPanel);
+    }
+
+     JScrollPane scrollPane = new JScrollPane(displayPanel);
+    
+    scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    jScrollPane1.setViewportView(scrollPane);
+	}
+	
 }
