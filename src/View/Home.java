@@ -12,7 +12,7 @@ import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatGitHubIJTheme;
 import com.k33ptoo.components.KButton;
 import com.k33ptoo.components.KGradientPanel;
 
-import Database.FoodManager;
+import Controller.FoodManager;
 
 import java.awt.Color;
 import java.awt.Component;
