@@ -13,6 +13,8 @@ import com.k33ptoo.components.KButton;
 import com.k33ptoo.components.KGradientPanel;
 
 import Controller.FoodManager;
+import Model.Food;
+import View.Home.ImageRenderer;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -21,6 +23,7 @@ import java.awt.Dimension;
 import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
@@ -35,6 +38,7 @@ import javax.swing.JTable;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 public class Home extends JFrame {
@@ -249,7 +253,7 @@ public class Home extends JFrame {
 		JButton btnNewButton_3_3 = new JButton("Foods");
 		btnNewButton_3_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+				showData(FoodManager.getInstance().findAll());
 			}
 		});
 		btnNewButton_3_3.setBackground(new Color(219, 160, 89));
@@ -275,15 +279,15 @@ public class Home extends JFrame {
 		Product.add(panel_3);
 		panel_3.setLayout(new CardLayout(0, 0));
 		
-		Food = new JPanel();
+		/*Food = new JPanel();
 		panel_3.add(Food, "name_1075544892265900");
 		Food.setLayout(null);
 		
-		JScrollPane scrollPane = new JScrollPane();
+		ScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(0, 0, 968, 637);
 		Food.add(scrollPane);
-		
 		Foodtable = new JTable();
+		showData(FoodManager.findAll());
 		Foodtable.setModel(new DefaultTableModel(
 			new Object[][] {
 			},
@@ -295,7 +299,8 @@ public class Home extends JFrame {
 		Foodtable.getColumnModel().getColumn(2).setPreferredWidth(104);
 		Foodtable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 		Foodtable.setBackground(new Color(97, 64, 22));
-		scrollPane.setViewportView(Foodtable);
+		scrollPane.setViewportView(Foodtable);*/
+		
 		
 		Drink = new JPanel();
 		Drink.setLayout(null);
@@ -348,6 +353,8 @@ public class Home extends JFrame {
 		Product.add(btnNewButton);
 		timeStart();
 		setTime();
+		
+
 	}
 	private void displayFood() {
 		Color mainColor = new Color(51, 153, 255);
@@ -416,5 +423,74 @@ public class Home extends JFrame {
     scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     jScrollPane1.setViewportView(scrollPane);
 	}
-	
+	/*	List<Food> listFoods = new ArrayList<>();
+		listFoods= foods;
+		DefaultTableModel tableModel;
+		Foodtable.getModel();
+		tableModel= (DefaultTableModel)Foodtable.getModel();
+		tableModel.setRowCount(0);
+		listFoods.forEach((food) ->{	
+			tableModel.addRow(new Object[] {
+				food.getName(),food.getPrice(),food.getImage()
+				
+			});
+		});
+		}*/
+	 public void showData(List<Food> foods) {
+	        DefaultTableModel FoodModel = new DefaultTableModel(
+	                new Object[][] {
+	      
+	                },
+	                new String[] {"Image", "Product's name", "Price" }
+	        );
+	        Foodtable = new JTable(FoodModel);
+
+	   	     Foodtable.getColumnModel().getColumn(0).setPreferredWidth(600);
+	   	     Foodtable.getColumnModel().getColumn(1).setPreferredWidth(50);
+	   	     Foodtable.setRowHeight(10);
+	   	
+	   	     // Đặt font cho bảng
+	   	     Foodtable.setFont(new Font("Segoe UI", Font.PLAIN, 14));           
+	         JScrollPane profileScrollPane = new JScrollPane(Foodtable);
+	        for (Food food : foods) {
+	            // Định dạng thông tin với các dòng mới
+	            
+	            // Thêm dữ liệu vào cả hai bảng profile và phr
+	            FoodModel.addRow(new Object[] { food.getImage(), food.getName(), food.getPrice() });
+	           
+	        }
+	        Foodtable.getColumnModel().getColumn(1).setCellRenderer(new ImageRenderer());
+	        Foodtable.getColumnModel().getColumn(1).setPreferredWidth(200);
+	        Foodtable.setRowHeight(200);
+	        }
+	 class ImageRenderer extends DefaultTableCellRenderer {
+	        JLabel lbl = new JLabel();
+
+	        @Override
+	        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+	            if (value != null) {
+	                // Đọc dữ liệu hình ảnh
+	                ImageIcon icon = new ImageIcon((byte[]) value);
+	                Image image = icon.getImage();
+
+	                // Kiểm tra hướng xoay của hình ảnh
+	                int width = image.getWidth(null);
+	                int height = image.getHeight(null);
+	                if (width > height) {
+	                    // Nếu chiều rộng lớn hơn chiều cao, quay ảnh
+	                    image = image.getScaledInstance(-1, 150, Image.SCALE_SMOOTH);
+	                } else {
+	                    // Ngược lại, không cần quay ảnh
+	                    image = image.getScaledInstance(150, -1, Image.SCALE_SMOOTH);
+	                }
+
+	                // Tạo mới ImageIcon từ hình ảnh đã được chỉnh sửa
+	                ImageIcon scaledIcon = new ImageIcon(image);
+	                lbl.setIcon(scaledIcon);
+	            } else {
+	                lbl.setIcon(null);
+	            }
+	            return lbl;
+	        }
+	    }
 }
