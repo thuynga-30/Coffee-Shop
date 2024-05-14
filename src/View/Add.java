@@ -30,6 +30,7 @@ public class Add extends JFrame {
 	private JLabel lblPrice;
 	private JLabel lblType;
 	private JLabel Images;
+	String anh="";
 
 	/**
 	 * Launch the application.
@@ -97,7 +98,27 @@ public class Add extends JFrame {
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				 
-			        
+				 JFileChooser jFileChooser = new JFileChooser();
+	                jFileChooser.setDialogTitle("ADD IMAGE");
+	                jFileChooser.setMultiSelectionEnabled(false);
+	                jFileChooser.setFileFilter(new FileTypeFilter(".jpg",".JPG"));
+	                jFileChooser.setFileFilter(new FileTypeFilter(".gif",".GIF"));
+	                jFileChooser.setFileFilter(new FileTypeFilter(".png",".PNG"));
+	                int result = jFileChooser.showOpenDialog(null);
+	                if(result ==JFileChooser.APPROVE_OPTION) {
+	                    File file = jFileChooser.getSelectedFile();
+	                    ImageIcon icon = new ImageIcon(file.getAbsolutePath());
+	                    // Kích thước tối đa của hình ảnh trên khung hình
+	                    // rộng= 130; cao=140
+	                    int maxWidth = 211;
+	                    int maxHeight = 219;
+	                    // Thích ứng kích thước của hình ảnh
+	                    Image img = icon.getImage();
+	                    Image newImg = img.getScaledInstance(maxWidth, maxHeight, Image.SCALE_SMOOTH);
+	                    icon = new ImageIcon(newImg);
+	                    Images.setIcon(icon);
+	                    anh = file.getAbsolutePath().replace("/","//");
+	                }
 			    
 			}
 		});
