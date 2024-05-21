@@ -29,7 +29,6 @@ public class FoodManager {
 			String name = rs.getString("Name");
 			String price = rs.getString("Price");
 			byte[] image = rs.getBytes("Image");
-			
 			Food food = new Food(name, price,image);
 			foods.add(food);
 		}
@@ -39,23 +38,4 @@ public class FoodManager {
 	}
 	return foods;
  }
-public static void addFood(String name, String price, byte[] image) {
-	try {
-		Connection connection = Connect.getConnection();
-		String sql = "INSERT INTO public.\"Food\" (\"Name\", \"Price\", \"Image\") VALUES (?, ?, ?);";
-		PreparedStatement st = connection.prepareStatement(sql);
-		st.setString(1, name);
-		st.setString(2,price);
-		st.setBytes(3, image);
-		int rows = st.executeUpdate();
-		if (rows >0) {
-			System.out.println("Inserted successfully!");
-		}
-		Connect.closeConnection(connection);
-	} catch (SQLException e) {
-		// TODO: handle exception
-        e.printStackTrace();
-
-	}
-}
 }

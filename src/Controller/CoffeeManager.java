@@ -35,4 +35,9 @@ public class CoffeeManager {
 	}
 	return coffees;
  }
+
+public static CoffeeManager getInstance() {
+	// TODO Auto-generated method stub
+	return new CoffeeManager();
+}
 }

@@ -13,6 +13,10 @@ import Model.Drink;
 import Model.Food;
 
 public class DrinkManager {
+	public static DrinkManager getInstance() {
+        return new DrinkManager(); // Fixed the method name to lowercase "danhBA"
+    }
+
  public static List<Drink> findAll(){
 	 List<Drink> drinks = new ArrayList<>();
 	 String query= "SELECT \"Name\", \"Price\", \"Image\" FROM public.\"Drink\"";
@@ -24,7 +28,6 @@ public class DrinkManager {
 			String name = rs.getString("Name");
 			String price = rs.getString("Price");
 			byte[] image = rs.getBytes("Image");
-			String type = rs.getString("Type");
 			Drink drink = new Drink(name, price,image);
 			drinks.add(drink);		
 		}
