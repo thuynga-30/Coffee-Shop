@@ -17,7 +17,6 @@ import Controller.DrinkManager;
 import Controller.FoodManager;
 import Database.Connect;
 import Model.*;
-import View.Home.ImageRenderer;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -31,15 +30,7 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.print.PrinterException;
-import java.lang.System.Logger;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.SimpleDateFormat;
 
 import javax.swing.SwingConstants;
@@ -75,6 +66,11 @@ public class Home extends JFrame {
 	private JTextArea textArea;
 	private JScrollPane jScrollPane1;
 	private JTextField recieve;
+	private JButton totalBtn;
+	private DefaultTableModel drinkModel;
+	private DefaultTableModel foodModel;
+	private DefaultTableModel coffeeModel;
+	private Timer refreshTimer;
 	private double total = 0.000;
 	private int x = 0;
 
@@ -117,7 +113,9 @@ public class Home extends JFrame {
 	}
 
 	public void clear() {
-		// spinner.setValue(0);
+		total=0.000;
+		x=0;
+		totalBtn.setEnabled(true);
 		recieve.setText("0.000");
 		textArea.setText("");
 	}
@@ -194,6 +192,7 @@ public class Home extends JFrame {
 		lblNewLabel.setIcon(new ImageIcon(Home.class.getResource("/Image/ffff.png")));
 		lblNewLabel.setBounds(10, 31, 239, 178);
 		menu.add(lblNewLabel);
+		
 
 		JPanel header = new JPanel();
 		header.setBackground(new Color(219, 160, 89));
@@ -219,7 +218,7 @@ public class Home extends JFrame {
 		lblNewLabel_1_1.setFont(new Font("Segoe UI", Font.BOLD, 24));
 		order.add(lblNewLabel_1_1);
 
-		JButton totalBtn = new JButton("Total");
+		totalBtn = new JButton("Total");
 		totalBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (total == 0.000) {
@@ -290,7 +289,7 @@ public class Home extends JFrame {
 		order.add(recieve);
 		recieve.setColumns(10);
 
-		JButton btnNewButton_4_1_1 = new JButton("Clear");
+		JButton btnNewButton_4_1_1 = new JButton("Reset");
 		btnNewButton_4_1_1.setBounds(120, 732, 76, 39);
 		btnNewButton_4_1_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -438,17 +437,8 @@ public class Home extends JFrame {
 		JButton btnNewButton = new JButton("");
         btnNewButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                Add add = new Add();
+                Add add = new Add(Home.this);
                 add.setVisible(true);
-                add.addWindowListener(new WindowAdapter() {
-                    @Override
-                    public void windowClosed(WindowEvent e) {
-                        // Call the update methods when the Add window is closed
-                    	ShowFood(FoodManager.getInstance().findAll());
-                    	ShowDrink(DrinkManager.getInstance().findAll());
-                    	ShowCoffee(CoffeeManager.getInstance().findAll());
-                    }
-                });
             }
         });
 		btnNewButton.setBackground(new Color(219, 160, 89));
@@ -458,22 +448,21 @@ public class Home extends JFrame {
 		Product.add(btnNewButton);
 		timeStart();
 		setTime();
-		ShowFood(FoodManager.getInstance().findAll());
-		ShowDrink(DrinkManager.getInstance().findAll());
-		ShowCoffee(CoffeeManager.getInstance().findAll());
-		Add add = new Add();
-        add.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosed(WindowEvent e) {
-                // Call the update methods when the Add window is closed
-            	ShowFood(FoodManager.getInstance().findAll());
-            	ShowDrink(DrinkManager.getInstance().findAll());
-            	ShowCoffee(CoffeeManager.getInstance().findAll());
-            }
-        });
+		showData();
+		/*refreshTimer = new Timer(3, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				refreshTable();	
+			}
+		});
+		refreshTimer.start();*/
 
 	}
-
+	public void showData() {
+        ShowFood(FoodManager.getInstance().findAll());
+        ShowDrink(DrinkManager.getInstance().findAll());
+        ShowCoffee(CoffeeManager.getInstance().findAll());
+    }
 	private void displayFood() {
 		Color mainColor = new Color(97, 64, 22);
 		FoodManager foodManager = new FoodManager();
@@ -492,31 +481,37 @@ public class Home extends JFrame {
 			foodPanel.setkBorderRadius(100);
 			foodPanel.setBackground(Color.WHITE);
 
-			/*
-			 * ImageIcon imageIcon = new ImageIcon(food.getImage()); JLabel imageLabel = new
-			 * JLabel(imageIcon); imageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-			 * foodPanel.add(Box.createVerticalStrut(5)); foodPanel.add(imageLabel);
-			 */
+			
+			ImageIcon imageIcon = new ImageIcon(food.getImage()); 
+			JLabel imageLabel = new JLabel(imageIcon); 
+			imageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+			foodPanel.add(Box.createVerticalStrut(10));
+			foodPanel.add(imageLabel);
+			 
 
 			// Name
 			JLabel nameLabel = new JLabel(food.getName());
 			nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-			nameLabel.setFont(new Font("Segoe UI", 1, 12));
+			nameLabel.setFont(new Font("Segoe UI", 1, 20));
 			nameLabel.setForeground(new Color(219, 160, 89));
-			foodPanel.add(Box.createVerticalStrut(10));
+			foodPanel.add(Box.createVerticalStrut(15));
 			foodPanel.add(nameLabel);
 
 			// Price
 			JLabel priceLabel = new JLabel(food.getPrice());
 			priceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-			priceLabel.setFont(new Font("Segoe UI", 1, 12));
-			priceLabel.setForeground(Color.RED);
+			priceLabel.setFont(new Font("Segoe UI", 1, 16));
 			foodPanel.add(Box.createVerticalStrut(10));
+
+			priceLabel.setForeground(Color.RED);
+			
 			foodPanel.add(priceLabel);
 
 			JSpinner spinner = new JSpinner();
-			spinner.setFont(new Font("Segoe UI", 1, 12));
-			foodPanel.add(Box.createVerticalStrut(10));
+			spinner.setFont(new Font("Segoe UI", 1, 14));
+			spinner.setBounds(106, 241, 60, 40);
+			spinner.setSize(60, 50);
+			foodPanel.add(Box.createVerticalStrut(5));
 			foodPanel.add(spinner);
 
 			KButton buyButton = new KButton();
@@ -547,7 +542,7 @@ public class Home extends JFrame {
 			buyButton.setkSelectedColor(Color.WHITE);
 			buyButton.setkHoverForeGround(Color.BLACK);
 			buyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-
+			foodPanel.add(Box.createVerticalStrut(10));
 			foodPanel.add(buyButton);
 
 			displayPanel.add(foodPanel);
@@ -577,16 +572,18 @@ public class Home extends JFrame {
 			drinkPanel.setkBorderRadius(100);
 			drinkPanel.setBackground(Color.WHITE);
 
-			/*
-			 * ImageIcon imageIcon = new ImageIcon(drink.getImage()); JLabel imageLabel =
-			 * new JLabel(imageIcon); imageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-			 * drinkPanel.add(Box.createVerticalStrut(5)); drinkPanel.add(imageLabel);
-			 */
+			
+			  ImageIcon imageIcon = new ImageIcon(drink.getImage()); 
+			  JLabel imageLabel =new JLabel(imageIcon); 
+			  imageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+			  drinkPanel.add(Box.createVerticalStrut(5));
+			  drinkPanel.add(imageLabel);
+			 
 
 			// Name
 			JLabel nameLabel = new JLabel(drink.getName());
 			nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-			nameLabel.setFont(new Font("Segoe UI", 1, 12));
+			nameLabel.setFont(new Font("Segoe UI", 1, 16));
 			nameLabel.setForeground(new Color(219, 160, 89));
 			drinkPanel.add(Box.createVerticalStrut(10));
 			drinkPanel.add(nameLabel);
@@ -594,14 +591,15 @@ public class Home extends JFrame {
 			// Price
 			JLabel priceLabel = new JLabel(drink.getPrice());
 			priceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-			priceLabel.setFont(new Font("Segoe UI", 1, 12));
+			priceLabel.setFont(new Font("Segoe UI", 1, 14));
 			priceLabel.setForeground(Color.RED);
 			drinkPanel.add(Box.createVerticalStrut(10));
 			drinkPanel.add(priceLabel);
 
 			JSpinner spinner = new JSpinner();
 			spinner.setFont(new Font("Tahoma", Font.BOLD, 14));
-			spinner.setBounds(95, 237, 69, 42);
+			spinner.setBounds(106, 241, 60, 40);
+			drinkPanel.add(Box.createVerticalStrut(10));
 			drinkPanel.add(spinner);
 
 			KButton buyButton = new KButton();
@@ -671,7 +669,7 @@ public class Home extends JFrame {
 			// Name
 			JLabel nameLabel = new JLabel(coffee.getName());
 			nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-			nameLabel.setFont(new Font("Segoe UI", 1, 12));
+			nameLabel.setFont(new Font("Segoe UI", 1, 14));
 			nameLabel.setForeground(new Color(219, 160, 89));
 			cofffeePanel.add(Box.createVerticalStrut(10));
 			cofffeePanel.add(nameLabel);
@@ -679,7 +677,7 @@ public class Home extends JFrame {
 			// Price
 			JLabel priceLabel = new JLabel(coffee.getPrice());
 			priceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-			priceLabel.setFont(new Font("Segoe UI", 1, 12));
+			priceLabel.setFont(new Font("Segoe UI", 1, 14));
 			priceLabel.setForeground(Color.RED);
 			cofffeePanel.add(Box.createVerticalStrut(10));
 			cofffeePanel.add(priceLabel);
@@ -687,6 +685,7 @@ public class Home extends JFrame {
 			JSpinner spinner = new JSpinner();
 			spinner.setFont(new Font("Tahoma", Font.BOLD, 14));
 			spinner.setBounds(95, 237, 69, 42);
+			cofffeePanel.add(Box.createVerticalStrut(10));
 			cofffeePanel.add(spinner);
 
 			KButton buyButton = new KButton();
@@ -729,8 +728,8 @@ public class Home extends JFrame {
 		jScrollPane1.setViewportView(scrollPane);
 	}
 
-	public void ShowFood(List<Food> foods) {
-		DefaultTableModel foodModel = new DefaultTableModel(new Object[][] {},
+	private void ShowFood(List<Food> foods) {
+		 foodModel = new DefaultTableModel(new Object[][] {},
 				new String[] { "Image", "Product's name", "Price" });
 		Foodtable = new JTable(foodModel);
 		Foodtable.getColumnModel().getColumn(0).setPreferredWidth(50);
@@ -751,8 +750,8 @@ public class Home extends JFrame {
 		Foodtable.setRowHeight(150);
 	}
 
-	public void ShowDrink(List<Drink> drinks) {
-		DefaultTableModel drinkModel = new DefaultTableModel(new Object[][] {},
+	private void ShowDrink(List<Drink> drinks) {
+	 drinkModel = new DefaultTableModel(new Object[][] {},
 				new String[] { "Image", "Product's name", "Price" });
 		Drinktable = new JTable(drinkModel);
 		Drinktable.getColumnModel().getColumn(0).setPreferredWidth(50);
@@ -760,7 +759,6 @@ public class Home extends JFrame {
 		Drinktable.getColumnModel().getColumn(2).setPreferredWidth(104);
 		Drinktable.setRowHeight(10);
 		Drinktable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-
 		JScrollPane drinkscrollPane = new JScrollPane(Drinktable);
 		drinkscrollPane.setBounds(0, 0, 968, 637);
 		Drink.setLayout(null);
@@ -773,8 +771,8 @@ public class Home extends JFrame {
 		Drinktable.setRowHeight(150);
 	}
 
-	public void ShowCoffee(List<Coffee> coffees) {
-		DefaultTableModel coffeeModel = new DefaultTableModel(new Object[][] {},
+	private void ShowCoffee(List<Coffee> coffees) {
+		coffeeModel = new DefaultTableModel(new Object[][] {},
 				new String[] { "Image", "Product's name", "Price" });
 		Coffeetable = new JTable(coffeeModel);
 		Coffeetable.getColumnModel().getColumn(0).setPreferredWidth(50);
@@ -782,7 +780,6 @@ public class Home extends JFrame {
 		Coffeetable.getColumnModel().getColumn(2).setPreferredWidth(104);
 		Coffeetable.setRowHeight(10);
 		Coffeetable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-
 		JScrollPane coffeescrollPane = new JScrollPane(Coffeetable);
 		coffeescrollPane.setBounds(0, 0, 968, 637);
 		Coffee.setLayout(null);
@@ -794,6 +791,38 @@ public class Home extends JFrame {
 		Coffeetable.getColumnModel().getColumn(0).setPreferredWidth(100);
 		Coffeetable.setRowHeight(150);
 	}
+	
+	public void refreshTable() {
+		List<Drink> updatedDrinks = DrinkManager.findAll();
+		List<Food> updateFoods = FoodManager.findAll();
+		List<Coffee> updateCoffees= CoffeeManager.findAll() ;
+		if (updatedDrinks != null) {
+			drinkModel.setRowCount(0); 
+			foodModel.setRowCount(0);
+			coffeeModel.setRowCount(0);
+			for (Drink drink : updatedDrinks) {
+				drinkModel.addRow(new Object[] { drink.getImage(), drink.getName(), drink.getPrice() });
+			}
+			for (Food food : updateFoods ) {
+				foodModel.addRow(new Object[] { food.getImage(), food.getName(), food.getPrice() });
+			}
+		}
+		
+		if (updateCoffees!= null) {
+			for (Coffee coffee: updateCoffees) {
+				coffeeModel.addRow(new Object[] {coffee.getImage(),coffee.getName(), coffee.getPrice()});
+			}
+		}
+	}
+	public void bill() {
+		int ID = 1000 + (int) (Math.random() * 80800);
+		textArea.setText("**********************Peanut Coffee***********************\n" 
+				+ "           Time: "+ jTxttime.getText() + "\n"
+				+ "           Orders ID: " + ID + "\n"
+				+ "*************************************************************\n" 
+				+ "Item Name\t" + "Price    "+ "         Quantity\n");
+	}
+}
 
 	class ImageRenderer extends DefaultTableCellRenderer {
 		JLabel lbl = new JLabel();
@@ -827,11 +856,4 @@ public class Home extends JFrame {
 		}
 	}
 
-	public void bill() {
-		int ID = 1000 + (int) (Math.random() * 80800);
-		textArea.setText("**********************Peanut Coffee***********************\n" + "           Time: "
-				+ jTxttime.getText() + "\n" + "           Orders ID: " + ID + "\n"
-				+ "*************************************************************\n" + "Item Name\t\t" + "Price    "
-				+ "         Quantity\n");
-	}
-}
+

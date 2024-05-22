@@ -10,13 +10,16 @@ import java.util.List;
 
 import Database.Connect;
 import Model.Coffee;
-import Model.Drink;
-import Model.Food;
+
 
 public class CoffeeManager {
+	public static CoffeeManager getInstance() {
+        return new CoffeeManager(); // Fixed the method name to lowercase "danhBA"
+    }
+
  public static List<Coffee> findAll(){
 	 List<Coffee> coffees = new ArrayList<>();
-	 String query= "SELECT \"Name\", \"Price\", \"Image\" FROM public.\"Coffee\"";
+	 String query= "SELECT * FROM public.\"Coffee\"";
 	 try {
 		Connection connection = Connect.getConnection();
 		Statement st = connection.createStatement(); 
@@ -25,7 +28,6 @@ public class CoffeeManager {
 			String name = rs.getString("Name");
 			String price = rs.getString("Price");
 			byte[] image = rs.getBytes("Image");
-			String type = rs.getString("Type");
 			Coffee coffee = new Coffee(name, price,image);
 			coffees.add(coffee);		
 		}
@@ -35,9 +37,4 @@ public class CoffeeManager {
 	}
 	return coffees;
  }
-
-public static CoffeeManager getInstance() {
-	// TODO Auto-generated method stub
-	return new CoffeeManager();
-}
 }
