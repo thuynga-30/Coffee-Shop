@@ -12,9 +12,7 @@ import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatGitHubIJTheme;
 import com.k33ptoo.components.KButton;
 import com.k33ptoo.components.KGradientPanel;
 
-import Controller.CoffeeManager;
-import Controller.DrinkManager;
-import Controller.FoodManager;
+import Controller.*;
 import Database.Connect;
 import Model.*;
 
@@ -31,6 +29,10 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.print.PrinterException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 
 import javax.swing.SwingConstants;
@@ -40,6 +42,7 @@ import java.util.*;
 import javax.swing.Timer;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.AbstractButton;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -50,6 +53,8 @@ import javax.swing.JSpinner;
 import javax.swing.border.LineBorder;
 import javax.swing.JTextField;
 import javax.swing.JTextArea;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class Home extends JFrame {
 
@@ -61,6 +66,7 @@ public class Home extends JFrame {
 	private JPanel Product;
 	private JPanel Food;
 	private JPanel Drink;
+	private JPanel Statistic ;
 	private JPanel Coffee;
 	private JTable Foodtable;
 	private JTextArea textArea;
@@ -71,7 +77,8 @@ public class Home extends JFrame {
 	private DefaultTableModel foodModel;
 	private DefaultTableModel coffeeModel;
 	private Timer refreshTimer;
-	private double total = 0.000;
+	private JTable purchaseTable;
+	private int total = 0;
 	private int x = 0;
 
 	/**
@@ -113,7 +120,7 @@ public class Home extends JFrame {
 	}
 
 	public void clear() {
-		total=0.000;
+		total=0;
 		x=0;
 		totalBtn.setEnabled(true);
 		recieve.setText("0.000");
@@ -161,7 +168,7 @@ public class Home extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				Home.setVisible(true);
 				Product.setVisible(false);
-
+				Statistic.setVisible(false);
 			}
 		});
 		home.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -173,6 +180,8 @@ public class Home extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				Home.setVisible(false);
 				Product.setVisible(true);
+				Statistic.setVisible(false);
+				
 			}
 		});
 		btnNewButton_1.setForeground(new Color(219, 160, 89));
@@ -182,6 +191,14 @@ public class Home extends JFrame {
 		menu.add(btnNewButton_1);
 
 		JButton btnNewButton_2 = new JButton("STATISTIC");
+		btnNewButton_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Home.setVisible(false);
+				Product.setVisible(false);
+				Statistic.setVisible(true);
+				showData();
+			}
+		});
 		btnNewButton_2.setForeground(new Color(219, 160, 89));
 		btnNewButton_2.setBackground(new Color(97, 64, 22));
 		btnNewButton_2.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -192,6 +209,14 @@ public class Home extends JFrame {
 		lblNewLabel.setIcon(new ImageIcon(Home.class.getResource("/Image/ffff.png")));
 		lblNewLabel.setBounds(10, 31, 239, 178);
 		menu.add(lblNewLabel);
+		
+		JButton btnNewButton_2_1 = new JButton("");
+		btnNewButton_2_1.setIcon(new ImageIcon(Home.class.getResource("/Image/snapedit_1710344305319.png")));
+		btnNewButton_2_1.setForeground(new Color(219, 160, 89));
+		btnNewButton_2_1.setFont(new Font("Segoe UI", Font.BOLD, 14));
+		btnNewButton_2_1.setBackground(new Color(97, 64, 22));
+		btnNewButton_2_1.setBounds(26, 687, 82, 68);
+		menu.add(btnNewButton_2_1);
 		
 
 		JPanel header = new JPanel();
@@ -446,19 +471,22 @@ public class Home extends JFrame {
 		btnNewButton.setIcon(new ImageIcon(Home.class.getResource("/Image/icons8-plus-24.png")));
 		btnNewButton.setBounds(793, 29, 77, 42);
 		Product.add(btnNewButton);
+		
+		Statistic = new JPanel();
+		Main.add(Statistic, "name_687066012739300");
+		Statistic.setLayout(null);
+		
+		JScrollPane scrollPane_1 = new JScrollPane();
+		scrollPane_1.setBounds(0, 0, 951, 639);
+		Statistic.add(scrollPane_1);
+		scrollPane_1.setViewportView(purchaseTable);
+		
+		purchaseTable = new JTable(new DefaultTableModel(
+			new Object[][] {},
+			new String[] {"Product", "Quantity", "Price", "Total"}));
+		scrollPane_1.setColumnHeaderView(purchaseTable);
 		timeStart();
 		setTime();
-		showData();
-		/*refreshTimer = new Timer(3, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				refreshTable();	
-			}
-		});
-		refreshTimer.start();*/
-
-	}
-	public void showData() {
         ShowFood(FoodManager.getInstance().findAll());
         ShowDrink(DrinkManager.getInstance().findAll());
         ShowCoffee(CoffeeManager.getInstance().findAll());
@@ -473,45 +501,42 @@ public class Home extends JFrame {
 
 		for (Food food : foods) {
 			KGradientPanel foodPanel = new KGradientPanel();
-			foodPanel.setLayout(new BoxLayout(foodPanel, BoxLayout.Y_AXIS));
-			foodPanel.setPreferredSize(new Dimension(30, 250));
+			foodPanel.setLayout(null);
+			foodPanel.setBounds(0, 0, 216, 266);
 			foodPanel.setBackground(Color.WHITE);
 			foodPanel.setkStartColor(mainColor);
-			foodPanel.setkEndColor(Color.white);
-			foodPanel.setkBorderRadius(100);
+			foodPanel.setkEndColor(Color.gray);
+			foodPanel.setkBorderRadius(50);
 			foodPanel.setBackground(Color.WHITE);
 
 			
-			ImageIcon imageIcon = new ImageIcon(food.getImage()); 
-			JLabel imageLabel = new JLabel(imageIcon); 
-			imageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-			foodPanel.add(Box.createVerticalStrut(10));
-			foodPanel.add(imageLabel);
+
+			  ImageIcon imageIcon = new ImageIcon(food.getImage()); 
+			  JLabel imageLabel =new JLabel(imageIcon); 
+			  imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			  imageLabel.setBounds(45, 10, 145, 110);
+			  foodPanel.add(imageLabel);
 			 
 
 			// Name
 			JLabel nameLabel = new JLabel(food.getName());
-			nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-			nameLabel.setFont(new Font("Segoe UI", 1, 20));
+			nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
+			nameLabel.setBounds(35, 117, 142, 29);
 			nameLabel.setForeground(new Color(219, 160, 89));
-			foodPanel.add(Box.createVerticalStrut(15));
 			foodPanel.add(nameLabel);
 
 			// Price
 			JLabel priceLabel = new JLabel(food.getPrice());
-			priceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-			priceLabel.setFont(new Font("Segoe UI", 1, 16));
-			foodPanel.add(Box.createVerticalStrut(10));
-
+			priceLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			priceLabel.setFont(new Font("Segoe UI", 1, 15));
+			priceLabel.setBounds(35, 143, 142, 22);
 			priceLabel.setForeground(Color.RED);
-			
 			foodPanel.add(priceLabel);
 
 			JSpinner spinner = new JSpinner();
-			spinner.setFont(new Font("Segoe UI", 1, 14));
-			spinner.setBounds(106, 241, 60, 40);
-			spinner.setSize(60, 50);
-			foodPanel.add(Box.createVerticalStrut(5));
+			spinner.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+			spinner.setBounds(71, 175, 64, 29);
 			foodPanel.add(spinner);
 
 			KButton buyButton = new KButton();
@@ -519,21 +544,26 @@ public class Home extends JFrame {
 			buyButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					int qty = Integer.parseInt(spinner.getValue().toString());
-					if (qty == 0) {
-						JOptionPane.showMessageDialog(null, "Please increase the item quantity");
-					} else {
-						x++;
-						if (x == 1) {
-							bill();
-						}
-						Double price = qty * Double.parseDouble(priceLabel.getText());
-						total += price;
-						textArea.setText(textArea.getText() + " " + x + ". " + nameLabel.getText() + "\t" + price
-								+ "00 VND " + "    " + qty + "\n");
-					}
-					spinner.setValue(0);
+				    int qty = Integer.parseInt(spinner.getValue().toString());
+				    String name = nameLabel.getText();
+				    String cost = priceLabel.getText();
+
+				    if (qty == 0) {
+				        JOptionPane.showMessageDialog(null, "Please increase the item quantity");
+				    } else {
+				        x++;
+				        if (x == 1) {
+				            bill();
+				        }
+				        double price = qty * Double.parseDouble(priceLabel.getText()); 
+				        total += price;
+				        textArea.setText(textArea.getText() + " " + x + ". " + name + "\t" + price + "00 VND " + "    " + qty + "\n");
+
+				        PurchaseManager.insertPurchase(name, qty, cost);
+				        spinner.setValue(0);
+				    }
 				}
+
 			});
 			buyButton.setBackground(mainColor);
 			buyButton.setkAllowGradient(false);
@@ -542,7 +572,9 @@ public class Home extends JFrame {
 			buyButton.setkSelectedColor(Color.WHITE);
 			buyButton.setkHoverForeGround(Color.BLACK);
 			buyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-			foodPanel.add(Box.createVerticalStrut(10));
+		
+			buyButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+			buyButton.setBounds(61, 227, 85, 29);
 			foodPanel.add(buyButton);
 
 			displayPanel.add(foodPanel);
@@ -564,42 +596,41 @@ public class Home extends JFrame {
 
 		for (Drink drink : drinks) {
 			KGradientPanel drinkPanel = new KGradientPanel();
-			drinkPanel.setLayout(new BoxLayout(drinkPanel, BoxLayout.Y_AXIS));
-			drinkPanel.setPreferredSize(new Dimension(30, 250));
+			drinkPanel.setLayout(null);
+			drinkPanel.setBounds(0, 0, 216, 266);
 			drinkPanel.setBackground(Color.WHITE);
 			drinkPanel.setkStartColor(mainColor);
-			drinkPanel.setkEndColor(Color.white);
-			drinkPanel.setkBorderRadius(100);
+			drinkPanel.setkEndColor(Color.gray);
+			drinkPanel.setkBorderRadius(50);
 			drinkPanel.setBackground(Color.WHITE);
 
 			
 			  ImageIcon imageIcon = new ImageIcon(drink.getImage()); 
 			  JLabel imageLabel =new JLabel(imageIcon); 
-			  imageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-			  drinkPanel.add(Box.createVerticalStrut(5));
+			  imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			  imageLabel.setBounds(45, 10, 145, 110);
 			  drinkPanel.add(imageLabel);
 			 
 
 			// Name
 			JLabel nameLabel = new JLabel(drink.getName());
-			nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-			nameLabel.setFont(new Font("Segoe UI", 1, 16));
+			nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
+			nameLabel.setBounds(35, 117, 142, 29);
 			nameLabel.setForeground(new Color(219, 160, 89));
-			drinkPanel.add(Box.createVerticalStrut(10));
 			drinkPanel.add(nameLabel);
 
 			// Price
 			JLabel priceLabel = new JLabel(drink.getPrice());
-			priceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-			priceLabel.setFont(new Font("Segoe UI", 1, 14));
+			priceLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			priceLabel.setFont(new Font("Segoe UI", 1, 16));
+			priceLabel.setBounds(35, 143, 142, 22);
 			priceLabel.setForeground(Color.RED);
-			drinkPanel.add(Box.createVerticalStrut(10));
 			drinkPanel.add(priceLabel);
 
 			JSpinner spinner = new JSpinner();
-			spinner.setFont(new Font("Tahoma", Font.BOLD, 14));
-			spinner.setBounds(106, 241, 60, 40);
-			drinkPanel.add(Box.createVerticalStrut(10));
+			spinner.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+			spinner.setBounds(71, 175, 64, 29);
 			drinkPanel.add(spinner);
 
 			KButton buyButton = new KButton();
@@ -630,7 +661,8 @@ public class Home extends JFrame {
 			buyButton.setkSelectedColor(Color.WHITE);
 			buyButton.setkHoverForeGround(Color.BLACK);
 			buyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-
+			buyButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+			buyButton.setBounds(61, 227, 85, 29);
 			drinkPanel.add(buyButton);
 
 			displayPanel.add(drinkPanel);
@@ -652,40 +684,39 @@ public class Home extends JFrame {
 
 		for (Coffee coffee : coffees) {
 			KGradientPanel cofffeePanel = new KGradientPanel();
-			cofffeePanel.setLayout(new BoxLayout(cofffeePanel, BoxLayout.Y_AXIS));
-			cofffeePanel.setPreferredSize(new Dimension(30, 250));
+			cofffeePanel.setLayout(null);
+			cofffeePanel.setBounds(0, 0, 216, 266);
 			cofffeePanel.setBackground(Color.WHITE);
 			cofffeePanel.setkStartColor(mainColor);
-			cofffeePanel.setkEndColor(Color.white);
-			cofffeePanel.setkBorderRadius(100);
+			cofffeePanel.setkEndColor(Color.gray);
+			cofffeePanel.setkBorderRadius(50);
 			cofffeePanel.setBackground(Color.WHITE);
 
 			ImageIcon imageIcon = new ImageIcon(coffee.getImage());
 			JLabel imageLabel = new JLabel(imageIcon);
-			imageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-			cofffeePanel.add(Box.createVerticalStrut(5));
+			imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			imageLabel.setBounds(45, 10, 145, 110);
 			cofffeePanel.add(imageLabel);
 
 			// Name
 			JLabel nameLabel = new JLabel(coffee.getName());
-			nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-			nameLabel.setFont(new Font("Segoe UI", 1, 14));
+			nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
+			nameLabel.setBounds(35, 117, 142, 29);
 			nameLabel.setForeground(new Color(219, 160, 89));
-			cofffeePanel.add(Box.createVerticalStrut(10));
 			cofffeePanel.add(nameLabel);
 
 			// Price
 			JLabel priceLabel = new JLabel(coffee.getPrice());
-			priceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-			priceLabel.setFont(new Font("Segoe UI", 1, 14));
+			priceLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			priceLabel.setFont(new Font("Segoe UI", 1, 16));
+			priceLabel.setBounds(35, 143, 142, 22);
 			priceLabel.setForeground(Color.RED);
-			cofffeePanel.add(Box.createVerticalStrut(10));
 			cofffeePanel.add(priceLabel);
 
 			JSpinner spinner = new JSpinner();
-			spinner.setFont(new Font("Tahoma", Font.BOLD, 14));
-			spinner.setBounds(95, 237, 69, 42);
-			cofffeePanel.add(Box.createVerticalStrut(10));
+			spinner.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+			spinner.setBounds(71, 175, 64, 29);
 			cofffeePanel.add(spinner);
 
 			KButton buyButton = new KButton();
@@ -716,7 +747,8 @@ public class Home extends JFrame {
 			buyButton.setkSelectedColor(Color.WHITE);
 			buyButton.setkHoverForeGround(Color.BLACK);
 			buyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-
+			buyButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+			buyButton.setBounds(61, 227, 85, 29);
 			cofffeePanel.add(buyButton);
 
 			displayPanel.add(cofffeePanel);
@@ -732,6 +764,7 @@ public class Home extends JFrame {
 		 foodModel = new DefaultTableModel(new Object[][] {},
 				new String[] { "Image", "Product's name", "Price" });
 		Foodtable = new JTable(foodModel);
+		
 		Foodtable.getColumnModel().getColumn(0).setPreferredWidth(50);
 		Foodtable.getColumnModel().getColumn(1).setPreferredWidth(195);
 		Foodtable.getColumnModel().getColumn(2).setPreferredWidth(104);
@@ -748,11 +781,12 @@ public class Home extends JFrame {
 		Foodtable.getColumnModel().getColumn(0).setCellRenderer(new ImageRenderer());
 		Foodtable.getColumnModel().getColumn(0).setPreferredWidth(100);
 		Foodtable.setRowHeight(150);
-	}
+		
+}
 
 	private void ShowDrink(List<Drink> drinks) {
-	 drinkModel = new DefaultTableModel(new Object[][] {},
-				new String[] { "Image", "Product's name", "Price" });
+		drinkModel = new DefaultTableModel(new Object[][] {},
+		new String[] { "Image", "Product's name", "Price" });
 		Drinktable = new JTable(drinkModel);
 		Drinktable.getColumnModel().getColumn(0).setPreferredWidth(50);
 		Drinktable.getColumnModel().getColumn(1).setPreferredWidth(195);
@@ -822,6 +856,27 @@ public class Home extends JFrame {
 				+ "*************************************************************\n" 
 				+ "Item Name\t" + "Price    "+ "         Quantity\n");
 	}
+	private void showData() {
+        String query = "SELECT * FROM \"Purchase\"";
+        try (
+        	Connection connection = Connect.getConnection();
+        	PreparedStatement pstmt = connection.prepareStatement(query)) {
+            ResultSet rs = pstmt.executeQuery();
+            DefaultTableModel tableModel;
+            tableModel = (DefaultTableModel) purchaseTable.getModel();
+            tableModel.setRowCount(0);
+            while (rs.next()) {
+                String product = rs.getString("Product");
+                String price = rs.getString("Price");
+                int quantity = rs.getInt("quantity");
+                
+                double total = Double.parseDouble(price) * quantity; 
+                tableModel.addRow(new Object[]{ product, price, quantity, total});
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
 }
 
 	class ImageRenderer extends DefaultTableCellRenderer {
@@ -854,6 +909,9 @@ public class Home extends JFrame {
 			}
 			return lbl;
 		}
-	}
+		
+		//"Product", "Quantity", "Price", "Total"
+		
+	    }
 
 

@@ -15,13 +15,12 @@ public class FoodManager {
 	public static FoodManager getInstance() {
 	        return new FoodManager(); // Fixed the method name to lowercase "danhBA"
 	    }
-
  public static List<Food> findAll(){
 	 List<Food> foods= new ArrayList<>();
 	
 	 try {
-		Connection connection = Connect.getConnection();
-		Statement st = connection.createStatement();
+		Connection conn = Connect.getConnection();
+		Statement st = conn.createStatement();
 		
 		String query= "SELECT * FROM \"Food\"";
 		ResultSet rs = st.executeQuery(query);
@@ -32,10 +31,22 @@ public class FoodManager {
 			Food food = new Food(name, price,image);
 			foods.add(food);
 		}
-		Connect.closeConnection(connection);
+		Connect.closeConnection(conn);
 	} catch (Exception e) {
 		// TODO: handle exception
 	}
 	return foods;
  }
+//Delete
+	public static void delete(Food food) {
+		String sql="DELETE FROM public.\"Food\"	WHERE \"Name\"='"+food.getName()+"';";
+		try {
+			Connection conn = Connect.getConnection();
+			PreparedStatement ps= conn.prepareStatement(sql);
+			ps.executeUpdate();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
+	}
 }
