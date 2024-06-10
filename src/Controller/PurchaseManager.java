@@ -9,7 +9,7 @@ import javax.swing.JOptionPane;
 import Database.Connect;
 
 public class PurchaseManager {
-    public static void insertPurchase(String product, int quantity, String price) {
+    public static void insertPurchase(String product, int quantity,String price) {
         String sql = "INSERT INTO \"Purchase\" (\"Product\", \"Quantity\", \"Price\", \"Total\") VALUES (?, ?, ?, ?)";
         try (
             Connection conn = Connect.getConnection();

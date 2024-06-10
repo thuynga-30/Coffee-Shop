@@ -13,7 +13,7 @@ import com.k33ptoo.components.KButton;
 import com.k33ptoo.components.KGradientPanel;
 
 import Controller.*;
-import Database.Connect;
+import Database.*;
 import Model.*;
 
 import java.awt.Color;
@@ -29,10 +29,15 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.print.PrinterException;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 
 import javax.swing.SwingConstants;
@@ -49,6 +54,7 @@ import javax.swing.ImageIcon;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JSpinner;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
@@ -80,9 +86,10 @@ public class Home extends JFrame {
 	private DefaultTableModel coffeeModel;
 	private Timer refreshTimer;
 	private JTable purchaseTable;
+	 private Timer timer;
 	private int total = 0;
 	private int x = 0;
-
+	
 	/**
 	 * Launch the application.
 	 */
@@ -127,7 +134,7 @@ public class Home extends JFrame {
 		totalBtn.setEnabled(true);
 		recieve.setText("0.000");
 		textArea.setText("");
-	}
+		}
 
 	public void setTime() {
 		Calendar calendar = Calendar.getInstance();
@@ -163,7 +170,6 @@ public class Home extends JFrame {
 		menu.setLayout(null);
 
 		JButton home = new JButton("HOME");
-		home.setIcon(null);
 		home.setForeground(new Color(219, 160, 89));
 		home.setBackground(new Color(97, 64, 22));
 		home.addActionListener(new ActionListener() {
@@ -207,13 +213,20 @@ public class Home extends JFrame {
 		btnNewButton_2.setBounds(84, 546, 113, 68);
 		menu.add(btnNewButton_2);
 
-		JLabel lblNewLabel = new JLabel("New label");
+		JLabel lblNewLabel = new JLabel("");
 		lblNewLabel.setIcon(new ImageIcon(Home.class.getResource("/Image/ffff.png")));
-		lblNewLabel.setBounds(10, 31, 239, 178);
+		lblNewLabel.setBounds(10, 32, 239, 178);
 		menu.add(lblNewLabel);
 
 		JButton btnNewButton_2_1 = new JButton("");
-		btnNewButton_2_1.setIcon(new ImageIcon(Home.class.getResource("/Image/snapedit_1710344305319.png")));
+		btnNewButton_2_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				LoginAndSingup logIn = new LoginAndSingup();
+				logIn.setVisible(true);
+				dispose();
+			}
+		});
+		btnNewButton_2_1.setIcon(new ImageIcon(Home.class.getResource("/Image/icons8-exit-50.png")));
 		btnNewButton_2_1.setForeground(new Color(219, 160, 89));
 		btnNewButton_2_1.setFont(new Font("Segoe UI", Font.BOLD, 14));
 		btnNewButton_2_1.setBackground(new Color(97, 64, 22));
@@ -252,7 +265,7 @@ public class Home extends JFrame {
 				} else {
 					textArea.setText(
 							textArea.getText() + "\n*************************************************************\n"
-									+ "Total: \t\t" + total + "00 VND\n");
+									+ "Total: \t\t" + total + ".000 VND\n");
 				}
 
 			}
@@ -349,6 +362,7 @@ public class Home extends JFrame {
 		Home.setLayout(null);
 
 		JLabel lblNewLabel_1 = new JLabel("MENU");
+		lblNewLabel_1.setForeground(new Color(255, 255, 255));
 		lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNewLabel_1.setFont(new Font("Segoe UI", Font.BOLD, 24));
 		lblNewLabel_1.setBounds(39, 16, 101, 50);
@@ -400,6 +414,7 @@ public class Home extends JFrame {
 		Product.setLayout(null);
 
 		JLabel lblNewLabel_1_2 = new JLabel("MENU");
+		lblNewLabel_1_2.setForeground(new Color(255, 255, 255));
 		lblNewLabel_1_2.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNewLabel_1_2.setFont(new Font("Segoe UI", Font.BOLD, 24));
 		lblNewLabel_1_2.setBounds(10, 10, 101, 50);
@@ -477,6 +492,7 @@ public class Home extends JFrame {
 		Product.add(btnNewButton);
 
 		Statistic = new JPanel();
+		Statistic.setBackground(new Color(255, 255, 255));
 		Main.add(Statistic, "name_687066012739300");
 		Statistic.setLayout(null);
 
@@ -486,8 +502,107 @@ public class Home extends JFrame {
 		scrollPane_1.setViewportView(purchaseTable);
 
 		purchaseTable = new JTable(
-				new DefaultTableModel(new Object[][] {}, new String[] { "Product", "Quantity", "Price", "Total" }));
-		scrollPane_1.setColumnHeaderView(purchaseTable);
+				new DefaultTableModel(
+			new Object[][] {
+			},
+			new String[] {
+				"Product", "Price", "Quantity", "Total"
+			}
+		));
+		scrollPane_1.setViewportView(purchaseTable);
+		
+		JLabel lblNewLabel_3 = new JLabel("TOTAL");
+		lblNewLabel_3.setFont(new Font("Segoe UI", Font.BOLD | Font.ITALIC, 20));
+		lblNewLabel_3.setBounds(602, 669, 81, 41);
+		Statistic.add(lblNewLabel_3);
+		
+		JLabel lblNewLabel_4 = new JLabel();
+		lblNewLabel_4.setFont(new Font("Segoe UI", Font.BOLD | Font.ITALIC, 16));
+		lblNewLabel_4.setBounds(722, 675, 219, 32);
+		Statistic.add(lblNewLabel_4);
+		 timer = new Timer(1000, new ActionListener() {
+	            @Override
+	            public void actionPerformed(ActionEvent e) {
+	            	
+	                lblNewLabel_4.setText(DTBase.getTotal()+".000 VND");
+	            }
+	        });
+	        timer.start();
+		
+		JButton btnNewButton_4 = new JButton("CLEAR");
+		btnNewButton_4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String sql="DELETE FROM public.\"Purchase\"	";
+				try {
+					Connection con= Connect.getConnection();
+					PreparedStatement ps= con.prepareStatement(sql);
+					ps.executeUpdate();
+				} catch (SQLException ex) {
+					// TODO: handle exception
+					ex.printStackTrace();
+			}
+				showData();
+			}
+		});
+		btnNewButton_4.setForeground(new Color(228, 188, 139));
+		btnNewButton_4.setBackground(new Color(97, 64, 22));
+		btnNewButton_4.setFont(new Font("Segoe UI", Font.BOLD, 14));
+		btnNewButton_4.setBounds(20, 669, 90, 41);
+		Statistic.add(btnNewButton_4);
+		
+		JButton btnNewButton_4_2 = new JButton("EXPORT");
+		btnNewButton_4_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				 StringBuilder builder= new StringBuilder();
+		            try (
+		            	 Connection con = Connect.getConnection();
+		   	             Statement st = con.createStatement();
+		   	             ResultSet rs = st.executeQuery("SELECT \"Product\", \"Quantity\", \"Price\", \"Total\" FROM \"Purchase\"")) {
+		   	
+		   	            while (rs.next()) {
+		   	                builder.append("<Bill>\r\n");
+		   	                builder.append("<Product>").append(rs.getString("Product")).append("</Product>\r\n");
+		   	                builder.append("<Quantity>").append(rs.getString("Quantity")).append("</Quantity>\r\n");
+		   	                builder.append("<Price>").append(rs.getString("Price")+"VND").append("</Price>\r\n");
+		   	                builder.append("<Total>").append(rs.getString("Total")+".000VND").append("</Total>\r\n");
+		   	                builder.append("</Bill>\r\n");
+		   	            }
+		   	        } catch (Exception ex) {
+		   	            JOptionPane.showMessageDialog(null, "Error!");
+		   	
+		   	        }
+			        String body= builder.toString();
+			        String XML ="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+			                + "<billList>\r\n"
+			                + body
+			                + "</billList>";
+			        // Lưu vào tệp
+			        JFileChooser fileChooser = new JFileChooser();
+			        fileChooser.setDialogTitle("Specify a file to save");
+			        int userSelection = fileChooser.showSaveDialog(null);
+
+			        if (userSelection == JFileChooser.APPROVE_OPTION) {
+			            File fileToSave = fileChooser.getSelectedFile();
+			            try (FileOutputStream fos = new FileOutputStream(fileToSave)) {
+			                byte[] data = XML.getBytes();
+			                fos.write(data);
+			                fos.close();
+			                JOptionPane.showMessageDialog(null, "Exported successfully to " + fileToSave.getAbsolutePath());
+			            } catch (FileNotFoundException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+			        }
+			}
+		});
+		btnNewButton_4_2.setForeground(new Color(228, 188, 139));
+		btnNewButton_4_2.setFont(new Font("Segoe UI", Font.BOLD, 14));
+		btnNewButton_4_2.setBackground(new Color(97, 64, 22));
+		btnNewButton_4_2.setBounds(145, 669, 90, 41);
+		Statistic.add(btnNewButton_4_2);
 		timeStart();
 		setTime();
 		ShowFood(FoodManager.getInstance().findAll());
@@ -566,8 +681,7 @@ public class Home extends JFrame {
 						total += price;
 						textArea.setText(textArea.getText() + " " + x + ". " + name + "\t" + price + "00 VND " + "    "
 								+ qty + "\n");
-
-						PurchaseManager.insertPurchase(name, qty, cost);
+						PurchaseManager.insertPurchase(name, qty,cost);
 						spinner.setValue(0);
 					}
 				}
@@ -651,6 +765,8 @@ public class Home extends JFrame {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					int qty = Integer.parseInt(spinner.getValue().toString());
+					String name = nameLabel.getText();
+					String cost = priceLabel.getText();
 					if (qty == 0) {
 						JOptionPane.showMessageDialog(null, "Please increase the item quantity");
 					} else {
@@ -660,8 +776,9 @@ public class Home extends JFrame {
 						}
 						Double price = qty * Double.parseDouble(priceLabel.getText());
 						total += price;
-						textArea.setText(textArea.getText() + " " + x + ". " + nameLabel.getText() + "\t" + price
-								+ "00 VND " + "    " + qty + "\n");
+						textArea.setText(textArea.getText() + " " + x + ". " + name + "\t" + price + "00 VND " + "    "
+								+ qty + "\n");
+						PurchaseManager.insertPurchase(name,qty,cost);
 					}
 					spinner.setValue(0);
 				}
@@ -737,6 +854,8 @@ public class Home extends JFrame {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					int qty = Integer.parseInt(spinner.getValue().toString());
+					String name = nameLabel.getText();
+					String cost = priceLabel.getText();
 					if (qty == 0) {
 						JOptionPane.showMessageDialog(null, "Please increase the item quantity");
 					} else {
@@ -746,8 +865,10 @@ public class Home extends JFrame {
 						}
 						Double price = qty * Double.parseDouble(priceLabel.getText());
 						total += price;
-						textArea.setText(textArea.getText() + " " + x + ". " + nameLabel.getText() + "\t" + price
-								+ "00 VND " + "    " + qty + "\n");
+						textArea.setText(textArea.getText() + " " + x + ". " + name + "\t\t" + price + "00 VND " + "    "
+								+ qty + "\n");
+						
+						PurchaseManager.insertPurchase(name,qty,cost);
 					}
 					spinner.setValue(0);
 				}
@@ -862,14 +983,15 @@ public class Home extends JFrame {
 		int ID = 1000 + (int) (Math.random() * 80800);
 		textArea.setText("**********************Peanut Coffee***********************\n" + "           Time: "
 				+ jTxttime.getText() + "\n" + "           Orders ID: " + ID + "\n"
-				+ "*************************************************************\n" + "Item Name\t" + "Price    "
-				+ "         Quantity\n");
+				+ "*************************************************************\n" 
+				+ "Item Name\t\t" + "Price    "+ "         Quantity\n");
 	}
 
 	private void showData() {
 		String query = "SELECT * FROM \"Purchase\"";
-		try (Connection connection = Connect.getConnection();
-				PreparedStatement pstmt = connection.prepareStatement(query)) {
+		try (
+			Connection connection = Connect.getConnection();
+			PreparedStatement pstmt = connection.prepareStatement(query)) {
 			ResultSet rs = pstmt.executeQuery();
 			DefaultTableModel tableModel;
 			tableModel = (DefaultTableModel) purchaseTable.getModel();
@@ -878,7 +1000,6 @@ public class Home extends JFrame {
 				String product = rs.getString("Product");
 				String price = rs.getString("Price");
 				int quantity = rs.getInt("quantity");
-
 				double total = Double.parseDouble(price) * quantity;
 				tableModel.addRow(new Object[] { product, price, quantity, total });
 			}
@@ -886,39 +1007,7 @@ public class Home extends JFrame {
 			ex.printStackTrace();
 		}
 	}
-}
+	
+	 }
 
-class ImageRenderer extends DefaultTableCellRenderer {
-	JLabel lbl = new JLabel();
 
-	@Override
-	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-			int row, int column) {
-		if (value != null) {
-			// Đọc dữ liệu hình ảnh
-			ImageIcon icon = new ImageIcon((byte[]) value);
-			Image image = icon.getImage();
-
-			// Kiểm tra hướng xoay của hình ảnh
-			int width = image.getWidth(null);
-			int height = image.getHeight(null);
-			if (width > height) {
-				// Nếu chiều rộng lớn hơn chiều cao, quay ảnh
-				image = image.getScaledInstance(-1, 150, Image.SCALE_SMOOTH);
-			} else {
-				// Ngược lại, không cần quay ảnh
-				image = image.getScaledInstance(150, -1, Image.SCALE_SMOOTH);
-			}
-
-			// Tạo mới ImageIcon từ hình ảnh đã được chỉnh sửa
-			ImageIcon scaledIcon = new ImageIcon(image);
-			lbl.setIcon(scaledIcon);
-		} else {
-			lbl.setIcon(null);
-		}
-		return lbl;
-	}
-
-	// "Product", "Quantity", "Price", "Total"
-
-}
