@@ -23,6 +23,7 @@ import javax.swing.table.DefaultTableModel;
 
 import Controller.CoffeeManager;
 import Controller.DrinkManager;
+import Controller.FileTypeFilter;
 import Controller.FoodManager;
 import Database.Connect;
 
@@ -110,7 +111,7 @@ public class Add extends JFrame {
 					File file = jFileChooser.getSelectedFile();
 					ImageIcon icon = new ImageIcon(file.getAbsolutePath());
 					// Kích thước tối đa của hình ảnh trên khung hình
-					// rộng= 130; cao=140
+					
 					int maxWidth = 211;
 					int maxHeight = 219;
 					// Thích ứng kích thước của hình ảnh
@@ -140,12 +141,7 @@ public class Add extends JFrame {
 				try {
 					Connection con = Connect.getConnection();
 					if (type.getSelectedItem() == "Food") {
-						String sql = "INSERT INTO public.\"Food\"(\"Name\", \"Price\", \"Image\") VALUES (?, ?, ?);";
-
-						PreparedStatement ps = con.prepareStatement(sql);
-						ps.setString(1, name.getText());
-						ps.setString(2, price.getText());
-
+						
 						// Đọc dữ liệu từ tệp ảnh và chuyển đổi thành mảng byte
 						File file = new File(anh);
 						FileInputStream fis = new FileInputStream(file);
@@ -153,59 +149,25 @@ public class Add extends JFrame {
 						fis.read(imageData);
 						fis.close();
 
-						// Thiết lập giá trị bytea cho cột "Anh"
-						ps.setBytes(3, imageData);
-						int rowsAffected = ps.executeUpdate();
-
-						if (rowsAffected > 0) {
-							JOptionPane.showMessageDialog(null, "Save successfully!");
-
-						}
+						FoodManager.addFood(name.getText(), price.getText(), imageData);
 
 					} else if (type.getSelectedItem() == "Drink") {
 
-						String sql = "INSERT INTO public.\"Drink\"(\"Name\", \"Price\", \"Image\") VALUES (?, ?, ?);";
-
-						PreparedStatement ps = con.prepareStatement(sql);
-						ps.setString(1, name.getText());
-						ps.setString(2, price.getText());
-
+					
 						// Đọc dữ liệu từ tệp ảnh và chuyển đổi thành mảng byte
 						File file = new File(anh);
 						FileInputStream fis = new FileInputStream(file);
 						byte[] imageData = new byte[(int) file.length()];
 						fis.read(imageData);
 						fis.close();
-
-						// Thiết lập giá trị bytea cho cột "Anh"
-						ps.setBytes(3, imageData);
-						int rowsAffected = ps.executeUpdate();
-
-						if (rowsAffected > 0) {
-							JOptionPane.showMessageDialog(null, "Save successfully!");
-						}
+						DrinkManager.addDrink(name.getText(), price.getText(), imageData);
 					} else if (type.getSelectedItem() == "Coffee") {
-
-						String sql = "INSERT INTO \"Coffee\"(\"Name\", \"Price\", \"Image\") VALUES (?, ?, ?);";
-
-						PreparedStatement ps = con.prepareStatement(sql);
-						ps.setString(1, name.getText());
-						ps.setString(2, price.getText());
-
-						// Đọc dữ liệu từ tệp ảnh và chuyển đổi thành mảng byte
 						File file = new File(anh);
 						FileInputStream fis = new FileInputStream(file);
 						byte[] imageData = new byte[(int) file.length()];
 						fis.read(imageData);
 						fis.close();
-
-						// Thiết lập giá trị bytea cho cột "Anh"
-						ps.setBytes(3, imageData);
-						int rowsAffected = ps.executeUpdate();
-
-						if (rowsAffected > 0) {
-							JOptionPane.showMessageDialog(null, "Save successfully!");
-						}
+						CoffeeManager.addCoffee(name.getText(),price.getText(), imageData);
 					}
 					name.setText("");
 					price.setText("");

@@ -1,5 +1,7 @@
 package Controller;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,11 +10,14 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import Database.Connect;
 import Model.Coffee;
 
 
 public class CoffeeManager {
+	
 	public static CoffeeManager getInstance() {
         return new CoffeeManager(); // Fixed the method name to lowercase "danhBA"
     }
@@ -36,5 +41,25 @@ public class CoffeeManager {
 		// TODO: handle exception
 	}
 	return coffees;
+ }
+ public static void addCoffee(String name, String price, byte[] image) {
+	 try {
+		 Connection con = Connect.getConnection(); 
+		 String sql = "INSERT INTO \"Coffee\"(\"Name\", \"Price\", \"Image\") VALUES (?, ?, ?);";
+
+			PreparedStatement ps = con.prepareStatement(sql);
+			ps.setString(1, name);
+			ps.setString(2, price);
+			ps.setBytes(3, image);
+			int rowsAffected = ps.executeUpdate();
+
+			if (rowsAffected > 0) {
+				JOptionPane.showMessageDialog(null, "Save successfully!");
+			}
+		 
+	 } catch(SQLException e) {
+		 e.printStackTrace();
+	 }
+	 
  }
 }

@@ -896,7 +896,6 @@ public class Home extends JFrame {
 	private void ShowFood(List<Food> foods) {
 		foodModel = new DefaultTableModel(new Object[][] {}, new String[] { "Image", "Product's name", "Price" });
 		Foodtable = new JTable(foodModel);
-
 		Foodtable.getColumnModel().getColumn(0).setPreferredWidth(50);
 		Foodtable.getColumnModel().getColumn(1).setPreferredWidth(195);
 		Foodtable.getColumnModel().getColumn(2).setPreferredWidth(104);

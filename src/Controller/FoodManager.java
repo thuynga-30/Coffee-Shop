@@ -8,6 +8,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import Database.Connect;
 import Model.Food;
 
@@ -38,8 +40,8 @@ public class FoodManager {
 	return foods;
  }
 //Delete
-	public static void delete(Food food) {
-		String sql="DELETE FROM public.\"Food\"	WHERE \"Name\"='"+food.getName()+"';";
+/*public static void delete(String name) {
+		String sql="DELETE FROM public.\"Food\"	WHERE \"Name\"='"+name+"';";
 		try {
 			Connection conn = Connect.getConnection();
 			PreparedStatement ps= conn.prepareStatement(sql);
@@ -48,5 +50,24 @@ public class FoodManager {
 			// TODO: handle exception
 		}
 		
-	}
+	}*/
+ public static void addFood(String name, String price, byte[] image) {
+	 try {
+		 Connection con = Connect.getConnection(); 
+		 String sql = "INSERT INTO \"Food\"(\"Name\", \"Price\", \"Image\") VALUES (?, ?, ?);";
+
+			PreparedStatement ps = con.prepareStatement(sql);
+			ps.setString(1, name);
+			ps.setString(2, price);
+			ps.setBytes(3, image);
+			int rowsAffected = ps.executeUpdate();
+
+			if (rowsAffected > 0) {
+				JOptionPane.showMessageDialog(null, "Save successfully!");
+			}
+		 
+	 } catch(SQLException e) {
+		 e.printStackTrace();
+	 }
+ }
 }

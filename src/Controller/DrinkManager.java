@@ -8,6 +8,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import Database.Connect;
 import Model.Drink;
 import Model.Food;
@@ -36,5 +38,25 @@ public class DrinkManager {
 		// TODO: handle exception
 	}
 	return drinks;
+ }
+ public static void addDrink(String name, String price, byte[] image) {
+	 try {
+		 Connection con = Connect.getConnection(); 
+		 String sql = "INSERT INTO \"Drink\"(\"Name\", \"Price\", \"Image\") VALUES (?, ?, ?);";
+
+			PreparedStatement ps = con.prepareStatement(sql);
+			ps.setString(1, name);
+			ps.setString(2, price);
+			ps.setBytes(3, image);
+			int rowsAffected = ps.executeUpdate();
+
+			if (rowsAffected > 0) {
+				JOptionPane.showMessageDialog(null, "Save successfully!");
+			}
+		 
+	 } catch(SQLException e) {
+		 e.printStackTrace();
+	 }
+	 
  }
 }

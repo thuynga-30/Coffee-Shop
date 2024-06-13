@@ -1,11 +1,18 @@
 package Database;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.swing.JOptionPane;
+
+import Model.Food;
+
 public class DTBase {
+	
 	 public static String getTotal() {
 	        String sql = "SELECT SUM(\"Total\") FROM public.\"Purchase\"";
 	        try {
@@ -21,4 +28,5 @@ public class DTBase {
 	        return "0"; // Return "0" if there is an error or no result
 
 	 }
+	
 }
